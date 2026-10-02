@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Phone, 
   Mail, 
@@ -12,23 +13,8 @@ import {
 
 export const Footer = ({
   onOpenConsultation,
-  onOpenService,
-  onOpenCalculator,
-  onOpenMedicalFinder
+  onOpenService
 }) => {
-  const scrollTo = (id) => {
-    if (id === 'hero' || id === 'top') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    const el = document.getElementById(id);
-    if (el) {
-      const yOffset = -75;
-      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-  };
-
   return (
     <footer className="bg-[#1A1A1A] text-neutral-300 pt-16 pb-8 border-t border-neutral-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
@@ -38,10 +24,7 @@ export const Footer = ({
           
           {/* Section 1: Company Information (lg:col-span-4) */}
           <div className="lg:col-span-4 space-y-4">
-            <button 
-              onClick={() => scrollTo('hero')} 
-              className="flex items-center gap-2.5 text-left cursor-pointer"
-            >
+            <Link to="/" className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C5985B] to-[#976A36] text-white flex items-center justify-center font-bold text-lg shadow-sm">
                 BT
               </div>
@@ -53,7 +36,7 @@ export const Footer = ({
                   Typing & Consulting
                 </span>
               </div>
-            </button>
+            </Link>
 
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed max-w-sm">
               Brightlink Consulting provides professional UAE visa and government service assistance, helping individuals and businesses complete their official documentation with clear guidance, full legal compliance, and reliable support.
@@ -108,78 +91,25 @@ export const Footer = ({
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <button 
-                  onClick={() => scrollTo('hero')} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left"
-                >
-                  Home
-                </button>
+                <Link to="/" className="hover:text-[#B8864B] transition-colors">Home</Link>
               </li>
               <li>
-                <button 
-                  onClick={() => scrollTo('about')} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left"
-                >
-                  About Us
-                </button>
+                <Link to="/family-visa" className="hover:text-[#B8864B] transition-colors">Family Visa</Link>
               </li>
               <li>
-                <button 
-                  onClick={() => scrollTo('services')} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left"
-                >
-                  All Services
-                </button>
+                <Link to="/golden-visa" className="hover:text-[#B8864B] transition-colors">Golden Visa</Link>
               </li>
               <li>
-                <button 
-                  onClick={() => scrollTo('process')} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left"
-                >
-                  How It Works
-                </button>
+                <Link to="/visa-calculator" className="hover:text-[#B8864B] transition-colors">Visa Calculator</Link>
               </li>
               <li>
-                <button 
-                  onClick={onOpenCalculator} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left flex items-center gap-1"
-                >
-                  <span>Fee Calculator</span>
-                  <span className="text-[9px] bg-[#B8864B]/20 text-[#E5B77E] px-1 py-0.2 rounded">Tool</span>
-                </button>
+                <Link to="/medical-finder" className="hover:text-[#B8864B] transition-colors">Medical Finder</Link>
               </li>
               <li>
-                <button 
-                  onClick={onOpenMedicalFinder} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left flex items-center gap-1"
-                >
-                  <span>Medical Centers</span>
-                  <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.2 rounded">DHA</span>
-                </button>
+                <Link to="/passport-services" className="hover:text-[#B8864B] transition-colors">Passport Services</Link>
               </li>
               <li>
-                <button 
-                  onClick={() => scrollTo('testimonials')} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left"
-                >
-                  Client Reviews
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => scrollTo('faq')} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left"
-                >
-                  FAQs
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => scrollTo('contact')} 
-                  className="hover:text-[#B8864B] transition-colors cursor-pointer text-left"
-                >
-                  Contact Us
-                </button>
+                <Link to="/contact" className="hover:text-[#B8864B] transition-colors">Contact Us</Link>
               </li>
             </ul>
           </div>
@@ -191,22 +121,22 @@ export const Footer = ({
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <button
-                  onClick={() => onOpenService('golden-visa')}
+                <Link
+                  to="/golden-visa"
                   className="hover:text-[#B8864B] transition-colors text-left cursor-pointer flex items-center gap-1.5"
                 >
                   <ArrowRight className="w-3 h-3 text-[#B8864B]" />
                   <span>10-Year Golden Visa</span>
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onOpenService('family-visa')}
+                <Link
+                  to="/family-visa"
                   className="hover:text-[#B8864B] transition-colors text-left cursor-pointer flex items-center gap-1.5"
                 >
                   <ArrowRight className="w-3 h-3 text-[#B8864B]" />
                   <span>Family Visa Sponsorship</span>
-                </button>
+                </Link>
               </li>
               <li>
                 <button
@@ -218,22 +148,22 @@ export const Footer = ({
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => onOpenService('passport-services')}
+                <Link
+                  to="/passport-services"
                   className="hover:text-[#B8864B] transition-colors text-left cursor-pointer flex items-center gap-1.5"
                 >
                   <ArrowRight className="w-3 h-3 text-[#B8864B]" />
                   <span>BLS Indian Passport Renewal</span>
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onOpenService('medical-visa')}
+                <Link
+                  to="/medical-finder"
                   className="hover:text-[#B8864B] transition-colors text-left cursor-pointer flex items-center gap-1.5"
                 >
                   <ArrowRight className="w-3 h-3 text-[#B8864B]" />
                   <span>VIP Medical Fitness Typing</span>
-                </button>
+                </Link>
               </li>
               <li>
                 <button

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Header } from './components/Header.jsx';
 import { Footer } from './components/Footer.jsx';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp.jsx';
@@ -6,14 +7,15 @@ import { ServiceDetailModal } from './components/ServiceDetailModal.jsx';
 import { ConsultationModal } from './components/ConsultationModal.jsx';
 import { VisaCalculatorModal } from './components/VisaCalculatorModal.jsx';
 import { MedicalFinderModal } from './components/MedicalFinderModal.jsx';
+import { ScrollToTop } from './components/ScrollToTop.jsx';
 
-import { HeroSection } from './components/HeroSection.jsx';
-import { AboutSection } from './components/AboutSection.jsx';
-import { ServicesSection } from './components/ServicesSection.jsx';
-import { ProcessSection } from './components/ProcessSection.jsx';
-import { TestimonialSection } from './components/TestimonialSection.jsx';
-import { FaqSection } from './components/FaqSection.jsx';
-import { ContactSection } from './components/ContactSection.jsx';
+import { HomePage } from './pages/HomePage.jsx';
+import { FamilyVisaPage } from './pages/FamilyVisaPage.jsx';
+import { GoldenVisaPage } from './pages/GoldenVisaPage.jsx';
+import { VisaCalculatorPage } from './pages/VisaCalculatorPage.jsx';
+import { MedicalFinderPage } from './pages/MedicalFinderPage.jsx';
+import { PassportServicesPage } from './pages/PassportServicesPage.jsx';
+import { ContactPage } from './pages/ContactPage.jsx';
 
 import { SERVICES_DATA } from './data/servicesData.js';
 
@@ -36,100 +38,134 @@ export default function App() {
     }
   };
 
-  const scrollToServices = () => {
-    const el = document.getElementById('services');
-    if (el) {
-      const yOffset = -75;
-      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFFFFF] text-[#222222] font-sans antialiased selection:bg-[#B8864B] selection:text-white">
-      {/* Sticky Top Header with Single Page Nav */}
-      <Header
-        onOpenConsultation={handleOpenConsultation}
-        onOpenCalculator={() => setIsCalculatorOpen(true)}
-        onOpenMedicalFinder={() => setIsMedicalFinderOpen(true)}
-      />
-
-      {/* Single Home Page Content Sections */}
-      <main className="flex-1">
-        {/* Hero Section */}
-        <HeroSection
-          onOpenConsultation={() => handleOpenConsultation('General Visa Inquiry')}
-          onOpenCalculator={() => setIsCalculatorOpen(true)}
+    <BrowserRouter>
+      <ScrollToTop />
+      <div className="min-h-screen flex flex-col bg-[#FFFFFF] text-[#222222] font-sans antialiased selection:bg-[#B8864B] selection:text-white">
+        {/* Sticky Header with all navbar page links */}
+        <Header
+          onOpenConsultation={handleOpenConsultation}
         />
 
-        {/* About Section */}
-        <AboutSection
-          onOpenConsultation={() => handleOpenConsultation('Comprehensive Assessment')}
-          onExploreServices={scrollToServices}
+        {/* Dynamic Route Pages */}
+        <main className="flex-1">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <HomePage
+                  onOpenConsultation={handleOpenConsultation}
+                  onOpenCalculator={() => setIsCalculatorOpen(true)}
+                  onSelectService={(service) => setSelectedService(service)}
+                />
+              }
+            />
+
+            <Route
+              path="/family-visa"
+              element={
+                <FamilyVisaPage
+                  onOpenConsultation={handleOpenConsultation}
+                />
+              }
+            />
+
+            <Route
+              path="/golden-visa"
+              element={
+                <GoldenVisaPage
+                  onOpenConsultation={handleOpenConsultation}
+                />
+              }
+            />
+
+            <Route
+              path="/visa-calculator"
+              element={
+                <VisaCalculatorPage
+                  onOpenConsultation={handleOpenConsultation}
+                />
+              }
+            />
+
+            <Route
+              path="/medical-finder"
+              element={
+                <MedicalFinderPage
+                  onOpenConsultation={handleOpenConsultation}
+                />
+              }
+            />
+
+            <Route
+              path="/passport-services"
+              element={
+                <PassportServicesPage
+                  onOpenConsultation={handleOpenConsultation}
+                />
+              }
+            />
+
+            <Route
+              path="/contact"
+              element={<ContactPage />}
+            />
+
+            {/* Fallback to Home */}
+            <Route
+              path="*"
+              element={
+                <HomePage
+                  onOpenConsultation={handleOpenConsultation}
+                  onOpenCalculator={() => setIsCalculatorOpen(true)}
+                  onSelectService={(service) => setSelectedService(service)}
+                />
+              }
+            />
+          </Routes>
+        </main>
+
+        {/* Multi-Column Footer */}
+        <Footer
+          onOpenConsultation={handleOpenConsultation}
+          onOpenService={handleOpenServiceById}
         />
 
-        {/* Complete Services Showcase (All 12 UAE Services) */}
-        <ServicesSection
-          onSelectService={(service) => setSelectedService(service)}
+        {/* Floating WhatsApp Action */}
+        <FloatingWhatsApp />
+
+        {/* Modals & Interactive Tools */}
+        <ServiceDetailModal
+          service={selectedService}
+          onClose={() => setSelectedService(null)}
+          onOpenConsultation={(serviceName) => {
+            setSelectedService(null);
+            handleOpenConsultation(serviceName);
+          }}
         />
 
-        {/* 3-Step Process Flow with Skyline Background */}
-        <ProcessSection
-          onOpenConsultation={() => handleOpenConsultation('Streamlined Process')}
+        <ConsultationModal
+          isOpen={isConsultationOpen}
+          onClose={() => setIsConsultationOpen(false)}
+          defaultService={consultationDefaultService}
         />
 
-        {/* Client Testimonials */}
-        <TestimonialSection />
+        <VisaCalculatorModal
+          isOpen={isCalculatorOpen}
+          onClose={() => setIsCalculatorOpen(false)}
+          onSelectServiceConsultation={(serviceName) => {
+            handleOpenConsultation(serviceName);
+          }}
+        />
 
-        {/* FAQ Accordion */}
-        <FaqSection />
-
-        {/* Contact Section with Map & Form */}
-        <ContactSection />
-      </main>
-
-      {/* Multi-Column Footer with Section Links */}
-      <Footer
-        onOpenConsultation={handleOpenConsultation}
-        onOpenService={handleOpenServiceById}
-        onOpenCalculator={() => setIsCalculatorOpen(true)}
-        onOpenMedicalFinder={() => setIsMedicalFinderOpen(true)}
-      />
-
-      {/* Floating WhatsApp Action Button */}
-      <FloatingWhatsApp />
-
-      {/* Modals & Interactive Tools */}
-      <ServiceDetailModal
-        service={selectedService}
-        onClose={() => setSelectedService(null)}
-        onOpenConsultation={(serviceName) => {
-          setSelectedService(null);
-          handleOpenConsultation(serviceName);
-        }}
-      />
-
-      <ConsultationModal
-        isOpen={isConsultationOpen}
-        onClose={() => setIsConsultationOpen(false)}
-        defaultService={consultationDefaultService}
-      />
-
-      <VisaCalculatorModal
-        isOpen={isCalculatorOpen}
-        onClose={() => setIsCalculatorOpen(false)}
-        onSelectServiceConsultation={(serviceName) => {
-          handleOpenConsultation(serviceName);
-        }}
-      />
-
-      <MedicalFinderModal
-        isOpen={isMedicalFinderOpen}
-        onClose={() => setIsMedicalFinderOpen(false)}
-        onBookMedical={(serviceName) => {
-          handleOpenConsultation(serviceName);
-        }}
-      />
-    </div>
+        <MedicalFinderModal
+          isOpen={isMedicalFinderOpen}
+          onClose={() => setIsMedicalFinderOpen(false)}
+          onBookMedical={(serviceName) => {
+            handleOpenConsultation(serviceName);
+          }}
+        />
+      </div>
+    </BrowserRouter>
   );
 }
