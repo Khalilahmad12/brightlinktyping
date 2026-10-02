@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (function() {
+        try {
+          var rawFetch = window.fetch;
+          var currentFetch = typeof rawFetch === 'function' ? rawFetch.bind(window) : rawFetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return currentFetch;
+            },
+            set: function(newVal) {
+              currentFetch = typeof newVal === 'function' ? newVal.bind(window) : newVal;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {}
+
+        if (typeof Window !== 'undefined' && Window.prototype) {
+          try {
+            var protoFetch = Window.prototype.fetch;
+            Object.defineProperty(Window.prototype, 'fetch', {
+              get: function() {
+                return currentFetch || protoFetch;
+              },
+              set: function(newVal) {
+                currentFetch = typeof newVal === 'function' ? newVal.bind(window) : newVal;
+              },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (e) {}
+        }
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrightLink Typing & Consulting | UAE Visa & Passport Services</title>
+    <meta name="description" content="Premium UAE Visa & Government Services in Dubai. Fast assistance for Golden Visa, Family Visa, Emirates ID, Passport Services, and Document Attestation." />
+    <meta property="og:title" content="BrightLink Typing & Consulting | UAE Visa & Passport Services" />
+    <meta property="og:description" content="Premium UAE Visa & Government Services in Dubai. Fast assistance for Golden Visa, Family Visa, Emirates ID, Passport Services, and Document Attestation." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#FCFAF8] text-[#222222] antialiased selection:bg-[#B8864B] selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+

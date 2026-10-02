@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Roboto', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  :root {
+    --primary: #B8864B;
+    --primary-hover: #9F7038;
+    --primary-light: #F9F5EE;
+    --secondary: #F5F1EB;
+    --dark: #222222;
+  }
+
+  html, body {
+    scroll-behavior: smooth;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* GPU accelerated smooth scrolling and image optimization */
+  img {
+    content-visibility: auto;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  /* Optimize offscreen sections for near-instant rendering */
+  section {
+    contain: layout style;
+  }
+
+  /* All website headings use Roboto font family */
+  h1, h2, h3, h4, h5, h6, 
+  h1 *, h2 *, h3 *, h4 *, h5 *, h6 *,
+  .font-heading {
+    font-family: 'Roboto', sans-serif;
+  }
+
+  /* All paragraphs and general body text use Inter font family */
+  p, p *, 
+  span, a, li, label, input, textarea, select, button, 
+  .font-body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Custom subtle glassmorphism and gold shimmer */
+.gold-gradient {
+  background: linear-gradient(135deg, #C5985B 0%, #B8864B 50%, #9F7038 100%);
+}
+
+.gold-gradient-subtle {
+  background: linear-gradient(135deg, rgba(184, 134, 75, 0.08) 0%, rgba(245, 241, 235, 0.6) 100%);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.glass-dark {
+  background: rgba(34, 34, 34, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
