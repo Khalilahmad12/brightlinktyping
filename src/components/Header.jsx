@@ -1,31 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { 
   Menu, 
   X, 
-  ChevronRight
+  ChevronRight,
+  Calculator,
+  Stethoscope,
+  PhoneCall
 } from 'lucide-react';
 
-export const Header = ({ onOpenConsultation }) => {
+gsap.registerPlugin(ScrollTrigger);
+
+export const Header = ({ 
+  onOpenConsultation, 
+  onOpenCalculator, 
+  onOpenMedicalFinder 
+}) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const [activeSection, setActiveSection] = useState('hero');
+  const progressBarRef = useRef(null);
 
-  // GPU-Accelerated Butter-Smooth Scroll Progress (Zero React re-renders)
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 28,
-    restDelta: 0.001
-  });
+  // GSAP ScrollTrigger Progress Bar
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      if (progressBarRef.current) {
+        gsap.to(progressBarRef.current, {
+          scaleX: 1,
+          ease: "none",
+          scrollTrigger: {
+            start: "top top",
+            end: "max",
+            scrub: 0.25
+          }
+        });
+      }
+    });
 
+    return () => ctx.revert();
+  }, []);
+
+  // Navbar scroll and active section observer
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           setScrolled(window.scrollY > 20);
+          
+          // Determine current section in viewport
+          const sections = ['hero', 'about', 'services', 'process', 'testimonials', 'faq', 'contact'];
+          for (const sec of sections) {
+            const el = document.getElementById(sec);
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              if (rect.top <= 140 && rect.bottom >= 140) {
+                setActiveSection(sec);
+                break;
+              }
+            }
+          }
+
           ticking = false;
         });
         ticking = true;
@@ -35,33 +71,59 @@ export const Header = ({ onOpenConsultation }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isHome = location.pathname === '/';
-  const isTransparent = isHome && !scrolled;
+  const isTransparent = !scrolled;
 
-  const navLinks = [
-    { label: 'Home', path: '/' },
-    { label: 'Family Visa', path: '/family-visa' },
-    { label: 'Golden Visa', path: '/golden-visa', badge: '10-Yr' },
-    { label: 'Visa Calculator', path: '/visa-calculator' },
-    { label: 'Medical Finder', path: '/medical-finder' },
-    { label: 'Passport Services', path: '/passport-services' },
-    { label: 'Contact', path: '/contact' }
+  const scrollTo = (id) => {
+    setMobileMenuOpen(false);
+    if (id === 'hero') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const el = document.getElementById(id);
+    if (el) {
+      const yOffset = -75;
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
+  const navItems = [
+    { label: 'Home', target: 'hero' },
+    { label: 'About', target: 'about' },
+    { label: 'Services', target: 'services' },
+    { label: 'Process', target: 'process' },
+    { 
+      label: 'Fee Calculator', 
+      isAction: true, 
+      action: onOpenCalculator,
+      badge: 'Tool'
+    },
+    { 
+      label: 'Medical Finder', 
+      isAction: true, 
+      action: onOpenMedicalFinder,
+      badge: 'DHA'
+    },
+    { label: 'Reviews', target: 'testimonials' },
+    { label: 'FAQ', target: 'faq' },
+    { label: 'Contact', target: 'contact' }
   ];
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
         scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-neutral-200/80 py-3.5'
-          : isHome
-          ? 'bg-transparent py-5 border-b border-white/10'
-          : 'bg-white/95 backdrop-blur-md shadow-sm border-b border-neutral-200/80 py-3.5'
+          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-neutral-200/80 py-3'
+          : 'bg-transparent py-5 border-b border-white/10'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between">
         
         {/* Left: BrightLink Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
+        <button 
+          onClick={() => scrollTo('hero')} 
+          className="flex items-center gap-2.5 group text-left cursor-pointer"
+        >
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C5985B] to-[#976A36] text-white flex items-center justify-center font-bold text-lg shadow-sm shadow-[#B8864B]/30 group-hover:scale-105 transition-transform duration-200">
             BT
           </div>
@@ -81,16 +143,44 @@ export const Header = ({ onOpenConsultation }) => {
               Typing & Consulting
             </span>
           </div>
-        </Link>
+        </button>
 
-        {/* Center: Navigation Menu */}
-        <nav className="hidden xl:flex items-center gap-6 text-xs font-semibold">
-          {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
+        {/* Center: Single Page Section Nav */}
+        <nav className="hidden xl:flex items-center gap-5 text-xs font-semibold">
+          {navItems.map((item, idx) => {
+            const isActive = !item.isAction && activeSection === item.target;
+            
+            if (item.isAction) {
+              return (
+                <button
+                  key={idx}
+                  onClick={item.action}
+                  className={`transition-colors relative py-1 flex items-center gap-1.5 cursor-pointer ${
+                    isTransparent
+                      ? 'text-white/90 hover:text-[#F5D7A1]'
+                      : 'text-[#444444] hover:text-[#B8864B]'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span
+                      className={`px-1.5 py-0.2 text-[9px] font-bold rounded-sm ${
+                        isTransparent
+                          ? 'bg-white/15 text-[#F5D7A1] border border-white/20'
+                          : 'bg-[#F5F1EB] text-[#B8864B]'
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            }
+
             return (
-              <Link
-                key={link.path}
-                to={link.path}
+              <button
+                key={idx}
+                onClick={() => scrollTo(item.target)}
                 className={`transition-colors relative py-1 flex items-center gap-1.5 cursor-pointer ${
                   isTransparent
                     ? isActive
@@ -101,36 +191,23 @@ export const Header = ({ onOpenConsultation }) => {
                     : 'text-[#444444] hover:text-[#B8864B] after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#B8864B] hover:after:w-full after:transition-all'
                 }`}
               >
-                <span>{link.label}</span>
-                {link.badge && (
-                  <span
-                    className={`px-1.5 py-0.2 text-[10px] font-bold rounded-sm transition-colors ${
-                      isTransparent
-                        ? 'bg-white/15 text-white border border-white/20'
-                        : 'bg-[#F5F1EB] text-[#B8864B]'
-                    }`}
-                  >
-                    {link.badge}
-                  </span>
-                )}
-              </Link>
+                <span>{item.label}</span>
+              </button>
             );
           })}
         </nav>
 
-        {/* Right: CTA Actions (Consultation button only, no WhatsApp button) */}
+        {/* Right: CTA Actions */}
         <div className="hidden sm:flex items-center gap-3">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => onOpenConsultation()}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#B8864B] hover:bg-[#9F7038] rounded-xl shadow-md shadow-[#B8864B]/20 transition-all cursor-pointer whitespace-nowrap"
+          <button
+            onClick={() => onOpenConsultation('Free Initial Consultation')}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#B8864B] hover:bg-[#9F7038] rounded-xl shadow-md shadow-[#B8864B]/20 transition-all cursor-pointer whitespace-nowrap transform hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Free Consultation</span>
-          </motion.button>
+          </button>
         </div>
 
-        {/* Mobile Hamburger (No calculator icon button) */}
+        {/* Mobile Hamburger */}
         <div className="flex items-center gap-2 xl:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -146,53 +223,68 @@ export const Header = ({ onOpenConsultation }) => {
       </div>
 
       {/* Mobile Drawer */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="xl:hidden bg-white border-b border-neutral-200 px-6 py-6 shadow-2xl overflow-hidden"
-          >
-            <nav className="flex flex-col space-y-3.5 text-sm font-semibold text-[#333333]">
-              {navLinks.map((link) => {
-                const isActive = location.pathname === link.path;
+      {mobileMenuOpen && (
+        <div className="xl:hidden bg-white border-b border-neutral-200 px-6 py-6 shadow-2xl overflow-hidden animate-in fade-in duration-200 max-h-[85vh] overflow-y-auto">
+          <nav className="flex flex-col space-y-3 text-sm font-semibold text-[#333333]">
+            {navItems.map((item, idx) => {
+              if (item.isAction) {
                 return (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`py-1.5 border-b border-neutral-100 flex items-center justify-between ${
-                      isActive ? 'text-[#B8864B] font-bold' : 'hover:text-[#B8864B]'
-                    }`}
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      item.action();
+                    }}
+                    className="py-2 border-b border-neutral-100 flex items-center justify-between text-left text-[#B8864B] cursor-pointer"
                   >
-                    <span>{link.label}</span>
+                    <span className="flex items-center gap-2">
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-sm bg-[#F5F1EB] text-[#B8864B]">
+                          {item.badge}
+                        </span>
+                      )}
+                    </span>
                     <ChevronRight className="w-4 h-4 text-neutral-400" />
-                  </Link>
+                  </button>
                 );
-              })}
+              }
 
-              <div className="pt-3 flex flex-col gap-2.5">
+              const isActive = activeSection === item.target;
+              return (
                 <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenConsultation();
-                  }}
-                  className="w-full py-3 px-4 text-sm font-bold text-white bg-[#B8864B] rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  key={idx}
+                  onClick={() => scrollTo(item.target)}
+                  className={`py-2 border-b border-neutral-100 flex items-center justify-between text-left cursor-pointer ${
+                    isActive ? 'text-[#B8864B] font-bold' : 'hover:text-[#B8864B]'
+                  }`}
                 >
-                  <span>Get Free Consultation</span>
+                  <span>{item.label}</span>
+                  <ChevronRight className="w-4 h-4 text-neutral-400" />
                 </button>
-              </div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              );
+            })}
 
-      {/* Smooth GPU-Accelerated Golden Scroll Progress Bar under header */}
-      <motion.div
-        style={{ scaleX }}
-        className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#C5985B] via-[#F3D7A4] to-[#976A36] origin-left pointer-events-none z-50 shadow-xs"
+            <div className="pt-3 flex flex-col gap-2.5">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenConsultation('Free Initial Consultation');
+                }}
+                className="w-full py-3 px-4 text-sm font-bold text-white bg-[#B8864B] rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              >
+                <span>Get Free Consultation</span>
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
+
+      {/* GSAP ScrollTrigger Gold Progress Bar under header */}
+      <div
+        ref={progressBarRef}
+        style={{ transform: 'scaleX(0)' }}
+        className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#C5985B] via-[#F3D7A4] to-[#976A36] origin-left pointer-events-none z-50 shadow-xs will-change-transform"
       />
     </header>
   );
