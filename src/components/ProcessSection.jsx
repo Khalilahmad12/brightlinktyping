@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { 
   FileCheck2, 
   SendHorizontal, 
@@ -8,8 +8,20 @@ import {
   ArrowRight,
   Sparkles
 } from 'lucide-react';
+import processBg from '../assets/images/process_bg_skyline_1790959277672.jpg';
 
 export const ProcessSection = ({ onOpenConsultation }) => {
+  const containerRef = useRef(null);
+
+  // Parallax tracking bound to the section's viewport entry and exit
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start end', 'end start']
+  });
+
+  // 0.50x relative scroll speed translation (moves smoothly as user scrolls)
+  const y = useTransform(scrollYProgress, [0, 1], ['-20%', '20%']);
+
   const steps = [
     {
       step: '01',
@@ -38,23 +50,47 @@ export const ProcessSection = ({ onOpenConsultation }) => {
   ];
 
   return (
-    <section id="process" className="py-20 sm:py-24 bg-[#FCFAF8] relative overflow-hidden border-t border-neutral-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+    <section 
+      ref={containerRef} 
+      id="process" 
+      className="py-24 bg-neutral-900 relative overflow-hidden"
+    >
+      {/* Parallax Background Image at 0.50x Scroll Speed */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          style={{ y }}
+          className="absolute -top-[25%] -bottom-[25%] left-0 right-0 w-full will-change-transform"
+        >
+          <img
+            src={processBg}
+            alt="Dubai Business Bay and Government District Architecture"
+            className="w-full h-full object-cover object-center scale-105"
+            loading="lazy"
+            decoding="async"
+          />
+        </motion.div>
+
+        {/* Lightweight translucent overlay so the skyline image is clearly visible */}
+        <div className="absolute inset-0 bg-black/35" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/75 via-transparent to-neutral-950/65" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#F5F1EB] border border-[#B8864B]/20">
-            <Sparkles className="w-3.5 h-3.5 text-[#B8864B]" />
-            <span className="text-xs font-bold text-[#8C6230] uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-[#E5B77E]/50 shadow-md">
+            <Sparkles className="w-3.5 h-3.5 text-[#E5B77E]" />
+            <span className="text-xs font-bold text-[#E5B77E] uppercase tracking-wider">
               How It Works
             </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#222222] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight drop-shadow-md">
             Streamlined 3-Step Process
           </h2>
 
-          <p className="text-sm sm:text-base text-[#666666] leading-relaxed">
+          <p className="text-sm sm:text-base text-neutral-100 font-medium leading-relaxed drop-shadow">
             A transparent roadmap engineered to minimize paperwork and eliminate immigration delays from start to finish.
           </p>
         </div>
@@ -69,14 +105,14 @@ export const ProcessSection = ({ onOpenConsultation }) => {
               viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.45, delay: index * 0.1 }}
               onClick={() => onOpenConsultation(`Process Step ${item.step}: ${item.title}`)}
-              className="bg-white rounded-2xl p-6 sm:p-7 border border-neutral-200/90 hover:border-[#B8864B]/60 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between group hover:-translate-y-1"
+              className="bg-white/95 backdrop-blur-md rounded-2xl p-6 sm:p-7 border border-white/60 hover:border-[#B8864B] shadow-xl hover:shadow-2xl hover:shadow-[#B8864B]/20 transition-all duration-300 cursor-pointer flex flex-col justify-between group hover:-translate-y-1.5"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-11 h-11 rounded-xl bg-[#F5F1EB] text-[#B8864B] group-hover:bg-[#B8864B] group-hover:text-white flex items-center justify-center transition-colors shadow-xs">
                     {item.icon}
                   </div>
-                  <span className="text-2xl font-black text-[#B8864B]/30 group-hover:text-[#B8864B]/70 transition-colors tabular-nums">
+                  <span className="text-2xl font-black text-[#B8864B]/35 group-hover:text-[#B8864B]/80 transition-colors tabular-nums">
                     {item.step}
                   </span>
                 </div>
